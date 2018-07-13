@@ -9,7 +9,7 @@ using System.Web.UI.WebControls;
 public partial class Model_M_SetFavourite : System.Web.UI.Page
 {
     private string aSQLConStr = "Data Source = 184.168.47.10; Integrated Security = False; User ID = MobileDaddy; PASSWORD = Aa54380438!; Connect Timeout = 15; Encrypt = False; Packet Size = 4096 ;";
-
+    SqlConnection aCon;
     protected void Page_Load(object sender, EventArgs e)
     {
         try
@@ -21,6 +21,8 @@ public partial class Model_M_SetFavourite : System.Web.UI.Page
 
             string aAccount = aCookieAC.Value;
 
+            aCon = new SqlConnection(aSQLConStr);
+            aCon.Open();
             //沒有帳號
             if (aAccount == null || aAccount == "")
             {
@@ -65,19 +67,13 @@ public partial class Model_M_SetFavourite : System.Web.UI.Page
             aSqlFavourite += aFavouriteList[i] + ",";
 
 
-        using (SqlConnection aCon = new SqlConnection(aSQLConStr))
+        aSQLStr = string.Format("UPDATE StockAccount SET Favourite = '{0}' WHERE Account='{1}'", aSqlFavourite, iAccount);
+
+        using (SqlCommand aCmd = new SqlCommand(aSQLStr, aCon))
         {
-            aCon.Open();
-            //代表裡面有資料
-
-            aSQLStr = string.Format("UPDATE StockAccount SET Favourite = '{0}' WHERE Account='{1}'", aSqlFavourite, iAccount);
-
-            using (SqlCommand aCmd = new SqlCommand(aSQLStr, aCon))
-            {
-                aCmd.ExecuteNonQuery();
-            }
+            aCmd.ExecuteNonQuery();
         }
-
+        CheckListData(iNumber);
         SetSessionFavourite(aSqlFavourite);
     }
 
@@ -106,19 +102,41 @@ public partial class Model_M_SetFavourite : System.Web.UI.Page
 
         aSqlFavourite.Replace(" ,","");
 
-        using (SqlConnection aCon = new SqlConnection(aSQLConStr))
+
+        string aSQLStr = string.Format("UPDATE StockAccount SET Favourite = '{0}' WHERE Account='{1}'", aSqlFavourite, iAccount);
+
+        using (SqlCommand aCmd = new SqlCommand(aSQLStr, aCon))
         {
-            aCon.Open();
+            aCmd.ExecuteNonQuery();
+        }
 
-            string aSQLStr = string.Format("UPDATE StockAccount SET Favourite = '{0}' WHERE Account='{1}'", aSqlFavourite, iAccount);
+        SetSessionFavourite(aSqlFavourite);
+    }
 
+    private void CheckListData(string iStockNumber)
+    {
+        string aSQLStr = string.Format("SELECT * FROM StockList WHERE StockNumber='{0}'", iStockNumber);
+        int aCount = 0;
+
+        using (SqlCommand aCmd = new SqlCommand(aSQLStr, aCon))
+        {
+            SqlDataReader aRr = aCmd.ExecuteReader();
+
+            while (aRr.Read())
+            {
+                aCount++;
+            }
+            aRr.Close();
+        }
+        //若沒有這筆資料就加入進去
+        if (aCount == 0)
+        {
+            aSQLStr = string.Format("INSERT INTO StockList(StockNumber) VALUES('{0}')",iStockNumber);
             using (SqlCommand aCmd = new SqlCommand(aSQLStr, aCon))
             {
                 aCmd.ExecuteNonQuery();
             }
         }
-
-        SetSessionFavourite(aSqlFavourite);
     }
 
     private void SetSessionFavourite(string iFavourite)

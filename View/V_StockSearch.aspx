@@ -152,6 +152,8 @@
 
     function SetFavouriteButton(StockNumber)
     {
+        var aFavourite = readCookie("FavouriteData");
+
         if (aFavourite.indexOf(StockNumber) < 0)
         {
             document.getElementById("FavouriteButton").className = "btn btn-primary";
