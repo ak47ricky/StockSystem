@@ -102,7 +102,6 @@
                 Number: $("#StockNumber").val()
             },
             success: function (result) {
-                //var aData = JSON.parse(result);
 
                 var aData = result;
 

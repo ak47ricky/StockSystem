@@ -16,7 +16,7 @@
     "個人帳戶"+
     "</a > "+
                 "<div class=\"dropdown-menu\">" + 
-                    "<a class=\"dropdown-item\" href=\"#\">Link 1</a>"+
+                    "<a class=\"dropdown-item\" href=\"../View/V_OrderSystem.aspx\">下單</a>"+
                     "<a class=\"dropdown-item\" href=\"#\">Link 2</a>"+
                     "<a class=\"dropdown-item\" href=\"#\">Link 3</a>"+
                 "</div>"+
@@ -104,5 +104,13 @@ function readCookie(name) {
 //刪除
 function eraseCookie(name) {
     createCookie(name, "", -1);
+}
+
+function CheckLogin()
+{
+    if (readCookie("NickName") != null)
+        return true;
+    else
+        return false;
 }
 

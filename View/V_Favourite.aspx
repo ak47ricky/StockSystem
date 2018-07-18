@@ -45,6 +45,13 @@
 <script>
     $(document).ready(function ()
     {
+        if (CheckLogin() == false) {
+            alert("尚未登入");
+            window.location.href = "../View/V_Login.aspx";
+            return;
+        }
+
+
         var aData;
 
         $.ajax({

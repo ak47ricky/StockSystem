@@ -22,7 +22,7 @@
     </style>
 </head>
 <body>
-    <div class="container text-center" id="Base">
+    <div class="container text-center" id="Base" style="height:730px">
         <div id="Menu"></div>
         <div id="SelectRadio" style="margin-top:50px;">
             <div class="form-check-inline">
@@ -46,31 +46,43 @@
              </div>
         </div>
 
-        <div id="StockOrderSystem" style="margin-top:50px;">
+        <div id="StockOrderSystem" style="margin-top:50px;display:none;">
+            <div style="margin-top:50px">
+                <div class ="fomr-check-label">
+                    <label id="StockNumber"></label>
+                </div>
+                <div class="form-check-label">
+                    <label id="Yesterday">昨日收盤價:</label>
+                </div>
+                <div class="form-check-label">
+                    <label id="NowPrice">今日現價:</label>
+                </div>
+            </div>
+
             <div>
-             <div class="form-check-label">
+             <div class="form-check-label" style="margin-top:30px">
                 <label for="StockCount">請輸入您想購買的數量</label>
             </div>
             <div class="form-check-inline">
                 
-                <button class="btn btn-info" onclick="Button_Del()" style="margin-right:10px;">-</button>
+                <button class="btn btn-info" onclick="Button_CountDel()" style="margin-right:10px;">-</button>
                 <input id="StockCount" type="number" class="form-control" style="width:100px;text-align:right;" value="1" min="1" max="1000" placeholder="請輸入數量" aria-label="請輸入數量"/>
-                <button class="btn btn-info" style="margin-left:10px" onclick="Button_Add()">+</button>
+                <button class="btn btn-info" style="margin-left:10px" onclick="Button_CountAdd()">+</button>
             </div>
             </div>
 
             <div style="margin-top:30px;">
                 <div class="form-check-label">
-                    <label for="SalePrice">請輸入您想販賣的金額</label>
+                    <label for="SalePrice">請輸入您想設定的價格</label>
                 </div>
                 <div class="form-check-inline">
-                    <button class="btn btn-info" onclick="Button_Del()" style="margin-right:10px;">-</button>
+                    <button class="btn btn-info" onclick="Button_RangeDel()" style="margin-right:10px;">-</button>
                     <input id="SalePrice" type="number" class="form-control" style="width:100px;text-align:right;" value="1" min="1" max="1000" placeholder="請輸入數量" aria-label="請輸入數量"/>
-                    <button class="btn btn-info" style="margin-left:10px" onclick="Button_Add()">+</button>
+                    <button class="btn btn-info" style="margin-left:10px" onclick="Button_RangeAdd()">+</button>
                 </div>
-                <div class="form-check-label">
-                    昨日收
-                </div>
+            </div>
+            <div style="margin:30px 150px" >
+                <button class="btn btn-primary">下單</button>
             </div>
         </div>
    </div>
@@ -79,6 +91,7 @@
 <script type="text/javascript" src="../JS/MenuButton.js"></script>
 <script>
     var aKind = 0;
+    var aPriceRange = 0;
 
     $(document).ready(function () {
         Init();
@@ -86,7 +99,12 @@
 
     function Init()
     {
-        
+        if (CheckLogin() == false)
+        {
+            alert("尚未登入");
+            window.location.href = "../View/V_Login.aspx";
+            return;
+        }
     }
     function SignOut() {
 
@@ -124,6 +142,14 @@
 
     function GetSearchStockData()
     {
+        $("#StockOrderSystem").css('display', 'none');
+
+        if (aKind == 0)
+        {
+            alert("尚未選擇買或賣");
+            return;
+        }
+
         $.ajax({
             url: "../Model/GetStockData.aspx",
             data: {
@@ -138,11 +164,16 @@
                     alert("資訊錯誤");
                     return;
                 }
+                $("#StockOrderSystem").css('display', 'block');
+                document.getElementById('StockNumber').innerText = result.StockValue[0];
+                document.getElementById('Yesterday').innerText = "昨日收盤價:" + result.StockValue[7];
+                document.getElementById('NowPrice').innerText = "今日現價:" + result.StockValue[2];
+                SetPriceRange(result.StockValue[2], result.StockValue[7]);
             }
         })
     }
 
-    function Button_Add()
+    function Button_CountAdd()
     {
         var aNowValue = $("#StockCount").val();
 
@@ -151,7 +182,7 @@
         $("#StockCount").val(aNowValue);
     }
 
-    function Button_Del()
+    function Button_CountDel()
     {
         var aNowValue = $("#StockCount").val();
 
@@ -161,5 +192,43 @@
             aNowValue = 1;
 
         $("#StockCount").val(aNowValue);
+    }
+
+    function Button_RangeAdd()
+    {
+        var aNowValue = $("#SalePrice").val();
+
+        aNowValue = parseFloat(aNowValue);
+
+
+        aNowValue += aPriceRange;
+        aNowValue = Math.round(aNowValue * 100) / 100;
+
+        $("#SalePrice").val(aNowValue);
+    }
+
+    function Button_RangeDel()
+    {
+        var aNowValue = $("#SalePrice").val();
+        aNowValue = parseFloat(aNowValue);
+        aNowValue -= aPriceRange;
+        aNowValue = Math.round(aNowValue * 100) / 100;
+        $("#SalePrice").val(aNowValue);
+    }
+
+    function SetPriceRange(NowPrice,Yesterday)
+    {
+        if (NowPrice < 10)
+            aPriceRange = 0.01;
+        else if (NowPrice >= 10 && NowPrice < 50)
+            aPriceRange = 0.05;
+        else if (NowPrice >= 50 && NowPrice < 100)
+            aPriceRange = 0.1;
+        else if (NowPrice >= 100 && NowPrice < 500)
+            aPriceRange = 1;
+        else
+            aPriceRange = 5;
+
+        $("#SalePrice").val(Yesterday);
     }
 </script>
