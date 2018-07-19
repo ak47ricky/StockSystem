@@ -51,7 +51,6 @@
             return;
         }
 
-
         var aData;
 
         $.ajax({

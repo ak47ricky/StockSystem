@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div style="margin:30px 150px" >
-                <button class="btn btn-primary">下單</button>
+                <button class="btn btn-primary" onclick="Button_Order()">下單</button>
             </div>
         </div>
    </div>
@@ -92,6 +92,7 @@
 <script>
     var aKind = 0;
     var aPriceRange = 0;
+    var aStockNUmber = "";
 
     $(document).ready(function () {
         Init();
@@ -149,6 +150,8 @@
             alert("尚未選擇買或賣");
             return;
         }
+
+        aStockNUmber = $("#SetStockNumber").val();
 
         $.ajax({
             url: "../Model/GetStockData.aspx",
@@ -230,5 +233,17 @@
             aPriceRange = 5;
 
         $("#SalePrice").val(Yesterday);
+    }
+
+    function Button_Order()
+    {
+        $.ajax({
+            url: "../Model/M_OrderSystem.aspx",
+            type: "GET",
+            data: {
+                Kind: aKind,
+                StockNumber:
+            }
+        })
     }
 </script>
